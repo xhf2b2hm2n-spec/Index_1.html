@@ -1,0 +1,654 @@
+```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Darbari Heritage | Ultimate Cloud Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@200;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-dark: #1d1d1f;
+            --gold: #c5a059;
+            --apple-spring: cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+
+        body, html {
+            width: 100vw; height: 100vh; overflow: hidden;
+            background-color: #000; color: #fff; perspective: 1000px;
+        }
+
+        /* --- اتمسفر لیکویید --- */
+        #main-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, #2c2c2e 0%, #000000 100%);
+            transition: background 1.5s ease;
+        }
+        .blob {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6;
+            transition: all 2s ease; animation: drift 20s infinite alternate;
+        }
+        .blob-1 { width: 90vw; height: 90vw; background: #c5a059; top: -20%; left: -20%; }
+        .blob-2 { width: 70vw; height: 70vw; background: #3a3a3c; bottom: -10%; right: -10%; }
+        @keyframes drift { from { transform: translate(0,0); } to { transform: translate(60px, 60px); } }
+
+        /* --- سیستم صفحات --- */
+        #app-shell { position: relative; width: 100%; height: 100%; z-index: 10; }
+        .page-view {
+            position: absolute; inset: 0; padding: 25px; padding-bottom: 140px;
+            overflow-y: auto; overflow-x: hidden; transition: all 0.8s var(--apple-spring);
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .home-active { transform: scale(1); opacity: 1; visibility: visible; }
+        .home-inactive { transform: scale(0.9) translateZ(-100px); opacity: 0.3; filter: blur(10px); visibility: hidden;}
+        
+        .cat-hidden { opacity: 0; visibility: hidden; transform: translateX(100%); }
+        html[dir="ltr"] .cat-hidden { transform: translateX(-100%); }
+        .cat-active { transform: translateX(0) !important; opacity: 1; visibility: visible; }
+
+        /* --- هدر --- */
+        header { text-align: center; padding: 40px 0 20px; }
+        .logo-box {
+            width: 100px; height: 100px; margin: 0 auto 15px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(197, 160, 89, 0.4);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); font-size: 2.5rem; font-weight: 900;
+            user-select: none; cursor: pointer; overflow: hidden; position: relative;
+            z-index: 100;
+        }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .brand-fa { font-size: 1.8rem; font-weight: 900; margin-bottom: 5px; }
+        .brand-en { font-family: -apple-system, sans-serif; font-weight: 600; letter-spacing: 2px; font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+        /* --- کارت‌ها --- */
+        .category-list { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 30px;
+            padding: 35px 25px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .glass-card:active { transform: scale(0.95); }
+        .cat-info { display: flex; flex-direction: column; gap: 8px; }
+        .cat-title { font-size: 1.4rem; font-weight: 800; }
+        .cat-sub { color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+        .cat-icon { font-size: 2.2rem; }
+
+        /* --- محصولات --- */
+        .sticky-nav {
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+            padding: 15px 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px);
+            margin: -25px -25px 20px -25px; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .back-btn {
+            width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            display: flex; align-items: center; justify-content: center; margin: 0 20px; cursor: pointer;
+        }
+        
+        .product-item {
+            display: flex; padding: 18px; margin-bottom: 15px; align-items: center;
+            background: rgba(255,255,255,0.03); border-radius: 25px; border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .product-item.unavailable { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+        .p-img-box {
+            width: 90px; height: 90px; border-radius: 20px; background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; overflow: hidden;
+        }
+        .p-meta { flex-grow: 1; padding: 0 15px; }
+        .p-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 5px; }
+        .p-price { color: var(--gold); font-weight: 700; }
+
+        /* --- مودال‌ها --- */
+        .modal {
+            position: fixed; inset: 0; z-index: 2000; visibility: hidden; opacity: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); transition: 0.5s;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .modal.active { visibility: visible; opacity: 1; }
+        .sheet {
+            background: #1c1c1e; border-radius: 40px 40px 0 0; padding: 40px 30px;
+            transform: translateY(100%); transition: 0.6s var(--apple-spring);
+            border-top: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;
+        }
+        .modal.active .sheet { transform: translateY(0); }
+        
+        .modal-center {
+            position: fixed; inset: 0; z-index: 2100; visibility: hidden; opacity: 0;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); transition: 0.3s;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-center.active { visibility: visible; opacity: 1; }
+        .modal-box {
+            background: #1c1c1e; border-radius: 30px; padding: 40px 30px; width: 100%; max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.1); text-align: center;
+        }
+
+        .confirm-btn {
+            background: #fff; color: #000; border: none; padding: 22px; border-radius: 22px;
+            width: 100%; font-size: 1.1rem; font-weight: 800; cursor: pointer;
+        }
+
+        /* --- سبد خرید --- */
+        .cart-btn {
+            position: fixed; bottom: 40px; left: 30px; width: 75px; height: 75px;
+            background: #fff; color: #000; border-radius: 50%; z-index: 1000;
+            display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); cursor: pointer;
+        }
+        html[dir="ltr"] .cart-btn { left: auto; right: 30px; }
+        .cart-badge {
+            position: absolute; top: -5px; right: -5px; background: var(--gold);
+            width: 28px; height: 28px; border-radius: 50%; border: 4px solid #000;
+            font-size: 0.8rem; font-weight: 900; display: flex; align-items: center; justify-content: center; color: #fff;
+        }
+
+        /* --- زبان --- */
+        .lang-switch-container {
+            position: absolute; top: 25px; left: 25px; display: flex; gap: 8px; z-index: 100;
+        }
+        html[dir="ltr"] .lang-switch-container { left: auto; right: 25px; }
+        .lang-btn {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; font-size: 0.7rem; font-weight: 800; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
+        }
+        .lang-btn.active { background: var(--gold); border-color: var(--gold); color: #000; }
+
+        /* --- پنل ادمین --- */
+        #admin-view { background: #111; z-index: 50; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .admin-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        .admin-input { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 15px; border-radius: 15px; margin-bottom: 12px; font-family: inherit; font-size: 1rem; }
+        .admin-select { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 15px; border-radius: 15px; margin-bottom: 12px; font-family: inherit; }
+        .admin-product-card { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        #loader {
+            position: fixed; inset: 0; z-index: 9999; background: #000; display: flex;
+            flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s;
+        }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(197, 160, 89, 0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body dir="rtl">
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; color: var(--gold); font-weight: 900;">Darbari Heritage</p>
+    </div>
+
+    <div id="main-bg"><div class="blob blob-1" id="blob1"></div><div class="blob blob-2" id="blob2"></div></div>
+
+    <div id="app-shell">
+        
+        <!-- HOME VIEW -->
+        <div id="home-view" class="page-view home-active">
+            <div class="lang-switch-container">
+                <div class="lang-btn active" onclick="setLang('fa')" id="btn-fa">FA</div>
+                <div class="lang-btn" onclick="setLang('en')" id="btn-en">EN</div>
+                <div class="lang-btn" onclick="setLang('tr')" id="btn-tr">TR</div>
+                <div class="lang-btn" onclick="setLang('ar')" id="btn-ar">AR</div>
+            </div>
+
+            <header>
+                <div class="logo-box" onclick="handleSecretClick()">
+                    <!-- عکس لوگو، اگر پیدا نشود حرف D را نشان می‌دهد -->
+                    <img src="./image.png" alt="" onerror="this.style.display='none'; this.parentNode.innerHTML='D';">
+                </div>
+                <h1 id="b-title" class="brand-fa">کافه نان درباری</h1>
+                <div id="b-sub" class="brand-en">Boulangerie & Pâtisserie</div>
+            </header>
+
+            <div class="category-list" id="cats-container"></div>
+            
+            <div class="category-list" style="margin-top: 10px;">
+                <div class="glass-card" onclick="openAbout()" style="justify-content: center; background: rgba(255,255,255,0.03);">
+                    <span id="about-btn-text" style="font-weight: 800;">درباره ما / About Us</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORY VIEW -->
+        <div id="cat-view" class="page-view cat-hidden">
+            <div class="sticky-nav">
+                <div class="back-btn" onclick="goHome()">❮</div>
+                <h2 id="view-title" style="flex-grow:1; text-align:center; padding-right:45px; padding-left:45px;">عنوان</h2>
+            </div>
+            <div id="product-list"></div>
+        </div>
+
+        <!-- ADMIN VIEW -->
+        <div id="admin-view" class="page-view cat-hidden">
+            <div class="admin-header">
+                <h2>کنترل پنل کلود</h2>
+                <button class="admin-btn" style="background: #333; color: white;" onclick="closeAdmin()">خروج</button>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="margin-bottom: 15px; color: var(--gold);">آیتم جدید</h3>
+                <input id="add-fa" class="admin-input" placeholder="نام فارسی">
+                <input id="add-en" class="admin-input" placeholder="نام انگلیسی">
+                <input id="add-tr" class="admin-input" placeholder="نام ترکی">
+                <input id="add-ar" class="admin-input" placeholder="نام عربی">
+                <input id="add-price" class="admin-input" type="number" placeholder="قیمت (تومان)">
+                <input id="add-desc" class="admin-input" placeholder="توضیحات کوتاه">
+                
+                <select id="add-cat" class="admin-select">
+                    <option value="hot">نوشیدنی گرم</option>
+                    <option value="cold">نوشیدنی سرد</option>
+                    <option value="bakery">نان و شیرینی</option>
+                </select>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="file" id="file-uploader" accept="image/*" style="display: none;" onchange="handleFile(event)">
+                    <button class="admin-btn" style="flex: 1; background: #444; color: #fff;" onclick="document.getElementById('file-uploader').click()">📸 تصویر محصول</button>
+                </div>
+                <div id="preview-box" style="display: none; width: 100%; height: 150px; border-radius: 12px; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--gold);">
+                    <img id="preview-img" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <button class="admin-btn" style="width: 100%; background: #21aa58; color: #fff;" onclick="adminSaveProduct()">+ ذخیره در سرور ابری</button>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="margin-bottom: 15px; color: #007aff;">تنظیمات لینک‌ها</h3>
+                <input id="set-insta" class="admin-input" placeholder="لینک اینستاگرام (مثال: https://instagram.com/...)">
+                <input id="set-snapp" class="admin-input" placeholder="لینک اسنپ (مثال: https://snapp.ir/...)">
+                <input id="set-tapsi" class="admin-input" placeholder="لینک تپسی">
+                <button class="admin-btn" style="background:#007aff; color:#fff; width: 100%;" onclick="adminSaveLinks()">ذخیره لینک‌ها در سرور</button>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">موجودی آیتم‌ها (سینک شده)</h3>
+            <div id="admin-list"></div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="cart-btn" onclick="openCartModal()">
+        <span class="cart-badge" id="cart-count">۰</span>🛒
+    </div>
+
+    <div class="modal-center" id="admin-login-modal" onclick="closeModal('admin-login-modal', event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <h2 style="margin-bottom: 20px;">ورود به مدیریت</h2>
+            <input type="password" id="admin-password" class="admin-input" style="text-align: center; letter-spacing: 5px;" placeholder="••••">
+            <div id="admin-error" style="color: #ff453a; font-size: 0.9rem; margin-bottom: 15px; display: none;">رمز اشتباه است</div>
+            <button class="confirm-btn" style="background: var(--gold);" onclick="verifyAdmin()">تایید ورود</button>
+        </div>
+    </div>
+
+    <div class="modal" id="p-modal" onclick="closeModal('p-modal', event)">
+        <div class="sheet" onclick="event.stopPropagation()">
+            <div id="m-icon" style="width:100%; height:250px; background:#222; border-radius:30px; margin-bottom:25px; display:flex; align-items:center; justify-content:center; font-size:5rem; overflow:hidden;"></div>
+            <h2 id="m-name" style="font-size:1.8rem; font-weight:900; margin-bottom:10px;"></h2>
+            <div id="m-price" style="color:var(--gold); font-size:1.3rem; font-weight:800; margin-bottom:20px;"></div>
+            <p id="m-desc" style="color:rgba(255,255,255,0.5); line-height:1.8; margin-bottom:30px;"></p>
+            <button class="confirm-btn" id="add-cart-btn" onclick="addToCart()">افزودن به سبد</button>
+        </div>
+    </div>
+
+    <div class="modal" id="cart-modal" onclick="closeModal('cart-modal', event)">
+        <div class="sheet" onclick="event.stopPropagation()">
+            <h2 id="cart-title" style="margin-bottom:20px;"></h2>
+            <div id="cart-items-container" style="max-height: 200px; overflow-y: auto;"></div>
+            <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; margin:20px 0;">
+                <span id="cart-total-label"></span><span id="cart-total" style="color:var(--gold);"></span>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <button class="confirm-btn" style="background: var(--gold); color: #fff;" onclick="finishOrder()">ثبت نهایی</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="about-modal" onclick="closeModal('about-modal', event)">
+        <div class="sheet" onclick="event.stopPropagation()">
+            <div class="logo-box" style="width:80px; height:80px; margin:0 auto 20px; cursor:default;">
+                <img src="./image.png" alt="" onerror="this.style.display='none'; this.parentNode.innerHTML='D';">
+            </div>
+            <h2 style="text-align: center; margin-bottom: 15px;">Darbari Heritage</h2>
+            <p style="color:rgba(255,255,255,0.5); text-align: center; margin-bottom: 25px;" id="about-desc"></p>
+            
+            <button class="confirm-btn" id="link-insta" style="background:#d62976; color:#fff; margin-bottom:10px;">Instagram</button>
+            <button class="confirm-btn" id="link-snapp" style="background:#21aa58; color:#fff; margin-bottom:10px;">🚕 Snapp / اسنپ</button>
+            <button class="confirm-btn" id="link-tapsi" style="background:#ff4500; color:#fff; margin-bottom:10px;">🚕 Tapsi / تپسی</button>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         اسکریپت‌های اتصال به دیتابیس ابری فایربیس
+         ========================================================================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // کلیدهایی که فرستادید را دقیقا اینجا قرار دادیم
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYH9V9wzVQ4SvlU0DDTdSJQJg60KcHhtE",
+            authDomain: "darbari-f31e4.firebaseapp.com",
+            projectId: "darbari-f31e4",
+            storageBucket: "darbari-f31e4.firebasestorage.app",
+            messagingSenderId: "215930312607",
+            appId: "1:215930312607:web:9110aee80a79c64d538faa",
+            measurementId: "G-WX5LNS9ZDB"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // APP STATE
+        window.lang = 'fa';
+        window.currentCatId = null;
+        window.cart = [];
+        window.currentProduct = null;
+        window.dbProducts = [];
+        window.dbSettings = {};
+        let tempImage = "";
+        let secretClicks = 0;
+        let secretTimer;
+
+        const dict = {
+            fa: { brand: "کافه نان درباری", sub: "Boulangerie & Pâtisserie", dir: "rtl", cats: { hot: { t: "نوشیدنی گرم", s: "تخصصی عربیکا", i: "☕", c: "#c5a059" }, cold: { t: "نوشیدنی سرد", s: "ترکیبات یخی", i: "🍹", c: "#007aff" }, bakery: { t: "نان و شیرینی", s: "پخت روزانه", i: "🥐", c: "#ff9500" } }, ui: { about: "درباره ما", empty: "موردی ثبت نشده است. از پنل مدیریت اضافه کنید.", unavail: "ناموجود", curr: "تومان", add: "افزودن به سبد", cart: "سبد خرید", total: "جمع کل:", desc: "تجربه‌ای فراتر از طعم. اصالت در پخت، مدرنیته در خدمت.", success: "سفارش شما با موفقیت ثبت شد." } },
+            en: { brand: "Darbari Bakery", sub: "Authentic & Modern", dir: "ltr", cats: { hot: { t: "Hot Drinks", s: "Arabica Special", i: "☕", c: "#c5a059" }, cold: { t: "Cold Drinks", s: "Ice Blends", i: "🍹", c: "#007aff" }, bakery: { t: "Bakery", s: "Daily Baked", i: "🥐", c: "#ff9500" } }, ui: { about: "About Us", empty: "No items yet. Add from admin panel.", unavail: "Sold Out", curr: "T", add: "Add to Cart", cart: "Your Order", total: "Total:", desc: "Authentic Baking, Modern Service", success: "Order successful." } },
+            tr: { brand: "Darbari Kafe", sub: "Boulangerie", dir: "ltr", cats: { hot: { t: "Sıcak İçecekler", s: "Özel Arabika", i: "☕", c: "#c5a059" }, cold: { t: "Soğuk İçecekler", s: "Buzlu Karışımlar", i: "🍹", c: "#007aff" }, bakery: { t: "Fırın", s: "Günlük", i: "🥐", c: "#ff9500" } }, ui: { about: "Hakkımızda", empty: "Ürün yok. Yönetim panelinden ekleyin.", unavail: "Tükendi", curr: "T", add: "Sepete Ekle", cart: "Siparişiniz", total: "Toplam:", desc: "Otantik Pişirme, Modern Hizmet", success: "Sipariş başarılı." } },
+            ar: { brand: "مقهى درباري", sub: "أصالة الخبز", dir: "rtl", cats: { hot: { t: "مشروبات ساخنة", s: "أرابيكا مختصة", i: "☕", c: "#c5a059" }, cold: { t: "مشروبات باردة", s: "خلطات مثلجة", i: "🍹", c: "#007aff" }, bakery: { t: "مخبوزات", s: "خبز يومي", i: "🥐", c: "#ff9500" } }, ui: { about: "معلومات عنا", empty: "لا يوجد عناصر. أضف من لوحة الإدارة.", unavail: "غیر متوفر", curr: "تومان", add: "أضف للسلة", cart: "طلبك", total: "المجموع:", desc: "أصالة الخبز، حداثة الخدمة", success: "تم الطلب بنجاح." } }
+        };
+
+        // FIREBASE CONNECT
+        async function start() {
+            try {
+                // ورود ناشناس برای اتصال به دیتابیس
+                await signInAnonymously(auth);
+                
+                // گوش دادن به تغییرات محصولات در دیتابیس شما
+                onSnapshot(collection(db, 'darbari_products'), (snap) => {
+                    window.dbProducts = snap.docs.map(d => ({ fbId: d.id, ...d.data() }));
+                    
+                    // مخفی کردن لودینگ
+                    document.getElementById('loader').style.opacity = '0';
+                    setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                    
+                    renderAll();
+                }, (error) => {
+                    console.error("خطا در دریافت محصولات: قوانین دیتابیس (Rules) را چک کنید", error);
+                    alert("خطا در اتصال به دیتابیس. لطفا قدم اول (تنظیم Rules) را انجام دهید.");
+                });
+
+                // گوش دادن به تغییرات لینک‌های ارتباطی
+                onSnapshot(doc(db, 'darbari_settings', 'links'), (snap) => {
+                    if(snap.exists()) {
+                        window.dbSettings = snap.data();
+                    }
+                    renderAll();
+                });
+
+            } catch(e) {
+                console.error("اتصال به فایربیس برقرار نشد:", e);
+                alert("ارتباط با سرور برقرار نشد.");
+            }
+        }
+
+        function renderAll() {
+            setLang(window.lang);
+            if(window.currentCatId) renderProducts(window.currentCatId);
+            if(document.getElementById('admin-view').classList.contains('cat-active')) renderAdmin();
+        }
+
+        // UI HELPERS
+        window.haptic = (ms) => { if(navigator.vibrate) navigator.vibrate(ms); }
+        window.formatPrice = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        window.setLang = (code) => {
+            window.lang = code;
+            const d = dict[code];
+            document.documentElement.dir = d.dir;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${code}`).classList.add('active');
+            document.getElementById('b-title').innerText = d.brand;
+            document.getElementById('b-sub').innerText = d.sub;
+            document.getElementById('about-btn-text').innerText = d.ui.about;
+            document.getElementById('about-desc').innerText = d.ui.desc;
+            document.getElementById('cart-title').innerText = d.ui.cart;
+            document.getElementById('cart-total-label').innerText = d.ui.total;
+            renderCategories();
+        }
+
+        window.renderCategories = () => {
+            const container = document.getElementById('cats-container');
+            container.innerHTML = '';
+            const d = dict[window.lang].cats;
+            for(let id in d) {
+                container.innerHTML += `
+                    <div class="glass-card" onclick="openCat('${id}')">
+                        <div class="cat-info">
+                            <div class="cat-title">${d[id].t}</div>
+                            <div class="cat-sub">${d[id].s}</div>
+                        </div>
+                        <div class="cat-icon">${d[id].i}</div>
+                    </div>
+                `;
+            }
+        }
+
+        window.renderProducts = (catId) => {
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
+            const d = dict[window.lang];
+            const items = window.dbProducts.filter(p => p.cat === catId);
+            
+            if(items.length === 0) { 
+                list.innerHTML = `<p style="text-align:center; opacity:0.5; padding:20px;">${d.ui.empty}</p>`; 
+                return; 
+            }
+            
+            items.forEach(p => {
+                const name = p[window.lang] || p.fa;
+                const img = p.img ? `<img src="${p.img}" style="width:100%; height:100%; object-fit:cover;">` : d.cats[catId].i;
+                list.innerHTML += `
+                    <div class="product-item ${!p.avail ? 'unavailable' : ''}" onclick="openProduct('${p.fbId}')">
+                        <div class="p-img-box" style="${p.img ? 'padding:0;' : ''}">${img}</div>
+                        <div class="p-meta">
+                            <div class="p-name">${name}</div>
+                            <div class="p-price">${window.formatPrice(p.price)} ${d.ui.curr}</div>
+                        </div>
+                        ${!p.avail ? `<span style="color:#ff453a; font-size:0.8rem; font-weight:bold;">${d.ui.unavail}</span>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        window.openCat = (id) => {
+            haptic(15);
+            window.currentCatId = id;
+            document.getElementById('blob1').style.background = dict[window.lang].cats[id].c;
+            document.getElementById('view-title').innerText = dict[window.lang].cats[id].t;
+            document.getElementById('home-view').className = 'page-view home-inactive';
+            document.getElementById('cat-view').className = 'page-view cat-active';
+            renderProducts(id);
+        }
+
+        window.goHome = () => {
+            haptic(10);
+            window.currentCatId = null;
+            document.getElementById('blob1').style.background = 'var(--gold)';
+            document.getElementById('home-view').className = 'page-view home-active';
+            document.getElementById('cat-view').className = 'page-view cat-hidden';
+        }
+
+        window.openProduct = (fbId) => {
+            const p = window.dbProducts.find(x => x.fbId === fbId);
+            if(!p || !p.avail) return;
+            window.currentProduct = p;
+            document.getElementById('m-icon').innerHTML = p.img ? `<img src="${p.img}" style="width:100%; height:100%; object-fit:cover;">` : dict[window.lang].cats[p.cat].i;
+            document.getElementById('m-name').innerText = p[window.lang] || p.fa;
+            document.getElementById('m-price').innerText = window.formatPrice(p.price) + " " + dict[window.lang].ui.curr;
+            document.getElementById('m-desc').innerText = p.desc || '';
+            document.getElementById('add-cart-btn').innerText = dict[window.lang].ui.add;
+            toggleModal('p-modal', true);
+        }
+
+        // CART
+        window.addToCart = () => {
+            window.cart.push(window.currentProduct);
+            updateCartUI();
+            toggleModal('p-modal', false);
+            haptic([15, 30]);
+        }
+
+        window.updateCartUI = () => {
+            document.getElementById('cart-count').innerText = window.cart.length;
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+            let total = 0;
+            window.cart.forEach((item) => {
+                total += item.price;
+                container.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.1);"><span>${item[window.lang] || item.fa}</span><span>${window.formatPrice(item.price)}</span></div>`;
+            });
+            document.getElementById('cart-total').innerText = window.formatPrice(total);
+        }
+
+        window.openCartModal = () => { if(window.cart.length > 0) toggleModal('cart-modal', true); }
+        window.finishOrder = () => { alert(dict[window.lang].ui.success); window.cart = []; updateCartUI(); toggleModal('cart-modal', false); }
+
+        // ADMIN
+        window.handleSecretClick = () => {
+            secretClicks++;
+            clearTimeout(secretTimer);
+            if(secretClicks >= 2) { toggleModal('admin-login-modal', true); secretClicks = 0; }
+            else { secretTimer = setTimeout(() => secretClicks = 0, 800); }
+        }
+
+        window.verifyAdmin = () => {
+            if(document.getElementById('admin-password').value === "2066") { toggleModal('admin-login-modal', false); openAdmin(); }
+            else { document.getElementById('admin-error').style.display = 'block'; }
+        }
+
+        window.openAdmin = () => {
+            document.getElementById('home-view').className = 'page-view home-inactive';
+            document.getElementById('admin-view').className = 'page-view cat-active';
+            
+            // نمایش مقادیر قبلی لینک‌ها اگر وجود داشت
+            document.getElementById('set-insta').value = window.dbSettings.insta || '';
+            document.getElementById('set-snapp').value = window.dbSettings.snapp || '';
+            document.getElementById('set-tapsi').value = window.dbSettings.tapsi || '';
+            
+            renderAdmin();
+        }
+
+        window.closeAdmin = () => { document.getElementById('admin-view').className = 'page-view cat-hidden'; document.getElementById('home-view').className = 'page-view home-active'; }
+
+        window.handleFile = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                tempImage = ev.target.result;
+                document.getElementById('preview-box').style.display = 'flex';
+                document.getElementById('preview-img').src = tempImage;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.adminSaveProduct = async () => {
+            const fa = document.getElementById('add-fa').value;
+            const price = parseInt(document.getElementById('add-price').value);
+            
+            if(!fa || !price) return alert("نام فارسی و قیمت الزامی است");
+
+            const pData = {
+                cat: document.getElementById('add-cat').value,
+                fa: fa,
+                en: document.getElementById('add-en').value || fa,
+                tr: document.getElementById('add-tr').value || fa,
+                ar: document.getElementById('add-ar').value || fa,
+                price: price,
+                desc: document.getElementById('add-desc').value,
+                img: tempImage,
+                avail: true,
+                timestamp: Date.now()
+            };
+
+            try {
+                // ارسال مستقیم به دیتابیس شما
+                await addDoc(collection(db, 'darbari_products'), pData);
+                alert("محصول با موفقیت در دیتابیس ذخیره شد.");
+                
+                // پاک کردن فرم
+                document.querySelectorAll('.admin-input').forEach(i => {
+                    if(!i.id.startsWith('set-') && i.id !== 'admin-password') i.value = '';
+                });
+                tempImage = ""; document.getElementById('preview-box').style.display = 'none';
+            } catch(e) {
+                console.error(e);
+                alert("خطا در ذخیره سازی! لطفا قدم اول (تنظیم Rules دیتابیس) را انجام داده باشید.");
+            }
+        }
+
+        window.renderAdmin = () => {
+            const list = document.getElementById('admin-list');
+            list.innerHTML = '';
+            window.dbProducts.sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
+                list.innerHTML += `
+                    <div class="admin-product-card" style="opacity: ${p.avail ? '1' : '0.5'}">
+                        <div><b>${p.fa}</b><br><small>${window.formatPrice(p.price)}T</small></div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="admin-btn" style="padding:5px 10px; background:${p.avail?'#ff9500':'#21aa58'}" onclick="adminToggle('${p.fbId}', ${p.avail})">${p.avail?'ناموجود':'موجود'}</button>
+                            <button class="admin-btn" style="padding:5px 10px; background:#ff453a; color:#fff" onclick="adminDel('${p.fbId}')">حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.adminToggle = async (fbId, status) => { 
+            await updateDoc(doc(db, 'darbari_products', fbId), { avail: !status }); 
+        }
+        
+        window.adminDel = async (fbId) => { 
+            if(confirm("آیا از حذف این آیتم مطمئن هستید؟")) {
+                await deleteDoc(doc(db, 'darbari_products', fbId)); 
+            }
+        }
+
+        window.adminSaveLinks = async () => {
+            try {
+                await setDoc(doc(db, 'darbari_settings', 'links'), {
+                    insta: document.getElementById('set-insta').value,
+                    snapp: document.getElementById('set-snapp').value,
+                    tapsi: document.getElementById('set-tapsi').value
+                });
+                alert("لینک‌های ارتباطی با موفقیت در سرور ذخیره شدند.");
+            } catch(e) {
+                alert("خطا در ذخیره لینک‌ها");
+            }
+        }
+
+        window.toggleModal = (id, show) => { document.getElementById(id).classList[show?'add':'remove']('active'); }
+        window.closeModal = (id, e) => { if(!e || e.target.id === id) toggleModal(id, false); }
+        
+        window.openAbout = () => {
+            // وقتی درباره ما باز میشه، مطمئن میشیم لینک ها به دکمه ها متصل شدن
+            document.getElementById('link-insta').onclick = () => { if(window.dbSettings.insta) window.open(window.dbSettings.insta, '_blank'); };
+            document.getElementById('link-snapp').onclick = () => { if(window.dbSettings.snapp) window.open(window.dbSettings.snapp, '_blank'); };
+            document.getElementById('link-tapsi').onclick = () => { if(window.dbSettings.tapsi) window.open(window.dbSettings.tapsi, '_blank'); };
+            
+            toggleModal('about-modal', true);
+        }
+
+        // شروع نرم‌افزار
+        start();
+    </script>
+</body>
+</html>
+
+
+```
