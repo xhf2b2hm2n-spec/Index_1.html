@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کافه نان درباری</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tahoma', sans-serif; /* در صورت داشتن فونت فارسی جایگزین کنید */
+        }
+
+        body {
+            /* پس‌زمینه طلایی به مشکی مشابه عکس */
+            background: radial-gradient(circle at top, #5c4a2a 0%, #1a1a1a 70%, #000000 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* بخش هدر و لوگو */
+        .header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: #b5a482;
+            text-transform: uppercase;
+        }
+
+        /* کانتینر اصلی کارت‌ها */
+        .menu-container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* استایل کارت‌های شیشه‌ای (Liquid Glass) */
+        .menu-item {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 35px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, background 0.3s;
+            cursor: pointer;
+        }
+
+        .menu-item:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .item-info {
+            flex-grow: 1;
+            text-align: right;
+            margin-right: 15px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .item-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .item-icon {
+            font-size: 35px;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+
+        /* سبد خرید شناور پایین صفحه */
+        .cart-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: white;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #d4af37;
+            color: white;
+            font-size: 12px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* بخش درباره ما (در مرکز قرار گرفته) */
+        .about-section {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .about-btn {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            border-radius: 35px;
+            padding: 18px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white;
+            display: block;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo-placeholder">D</div>
+        <div class="title">کافه نان درباری</div>
+        <div class="subtitle">BOULANGERIE & PÂTISSERIE</div>
+    </div>
+
+    <div class="menu-container">
+        <a href="#hot-drinks" class="menu-item">
+            <div class="item-icon">☕</div>
+            <div class="item-info">
+                <div class="item-title">نوشیدنی گرم</div>
+                <div class="item-desc">عصاره‌گیری تخصصی عربیکا</div>
+            </div>
+        </a>
+
+        <a href="#cold-drinks" class="menu-item">
+            <div class="item-icon">🍹</div>
+            <div class="item-info">
+                <div class="item-title">نوشیدنی سرد</div>
+                <div class="item-desc">ترکیبات یخی و انرژی‌بخش</div>
+            </div>
+        </a>
+
+        <a href="#pastry" class="menu-item">
+            <div class="item-icon">🥐</div>
+            <div class="item-info">
+                <div class="item-title">نان و شیرینی</div>
+                <div class="item-desc">پخت روزانه با کره فرانسوی</div>
+            </div>
+        </a>
+
+        <div class="about-section">
+            <a href="#about" class="about-btn">درباره ما</a>
+        </div>
+    </div>
+
+    <div class="cart-btn">
+        <div class="cart-badge">0</div>
+        <span style="font-size: 25px;">🛒</span>
+    </div>
+
+    <script>
+        // برای اینکه کلیک کردن روی کارت‌ها به درستی عمل کند
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const target = this.getAttribute('href');
+                console.log("ورود به بخش: " + target);
+                // اینجا لیست محصولات را بعداً اضافه می‌کنیم
+            });
+        });
+    </script>
+
+</body>
+</html>
